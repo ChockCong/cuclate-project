@@ -2,7 +2,8 @@ import Vue from 'vue';
 import {
 	Button,
 	Message,
-	Upload
+	Upload,
+	Popover
 	// Input,
 	// Checkbox,
 	// CheckboxButton,
@@ -19,6 +20,7 @@ import {
 } from 'element-ui';
 Vue.use(Button);
 Vue.use(Upload);
+Vue.use(Popover);
 Vue.prototype.$message = Message;
 // Vue.use(Input);
 // Vue.use(Radio);

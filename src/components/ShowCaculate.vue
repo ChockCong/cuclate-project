@@ -1,5 +1,5 @@
 <template>
-    <div class="haha">
+    <div class="show-set">
         <div>原数据：</div>
         <ul>
             <li v-for="(item, key) in originList" :key="key">
@@ -8,19 +8,23 @@
         </ul>
         <hr />
         <div>结果：</div>
-        <ul>
-            <li v-for="(item, key) in allTitle" :key="key">
-                {{item}}元组合：{{returnData(item)}}
-            </li>
-        </ul>
+        <template v-for="(item, key) in allTitle">
+            <div class="sub-title" :key="key" @click="showData(item)">
+                <span>{{item.idx}}元组合</span>
+                <i class="el-icon-circle-plus-outline"></i>
+            </div>
+            <div v-if="item.show" :key="key">
+                {{returnData(item.idx)}}
+            </div>
+        </template>
     </div>
 </template>
 <script>
 export default {
     name: 'ShowCaculate',
+    props: ['originList'],
     data() {
         return {
-            originList: [],
             resultList:[]
         };
     },
@@ -35,11 +39,20 @@ export default {
                 }
                 return allPrice;
             }, {});
-            console.log(countNames);
-            return Object.keys(countNames);
+            let last = [...Object.keys(countNames)];
+            last = last.map(val => {
+                let newSet = {}
+                newSet.idx = val;
+                newSet.show = false;
+                return newSet;
+            })
+            return last;
         }
     },
     methods: {
+        showData (item) {
+            item.show = !item.show;
+        },
         returnData(price) {
             let str = '[';
             this.resultList.forEach((val) => {
@@ -56,9 +69,8 @@ export default {
 			need_apply.push(data[index]);
 			for (let i = 0; i < group.length; i++) {
 				need_apply.push({ name: `${group[i].name}+${data[index].name}`, price: group[i].price + data[index].price });
-			}
-			group.push.apply(group, need_apply);
-
+            }
+            group.push.apply(group, need_apply);
 			if (index + 1 >= data.length) {
                 this.resultList = group;
                 return group;
@@ -67,14 +79,26 @@ export default {
 		},
     },
     beforeMount () {
-        console.log(this.$route);
-        this.originList = this.$route.query.list;
 		this.getGroup(this.originList);
     }
 }
 </script>
 <style lang="less" scoped>
-.haha {
+.show-set {
+    & .sub-title{
+        width: 100%;
+        height: 35px;
+        background-color: #409EFF;
+        color: white;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 5px;
+        & span {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    }
     ul {
         text-align: left;
         li {

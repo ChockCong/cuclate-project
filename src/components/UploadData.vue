@@ -1,49 +1,61 @@
 <template>
-    <div class="xixi">
-        <el-upload ref="upload"
-        action="/"
-        :show-file-list="false"
-        :on-change="importExcel"
-        :auto-upload="false">
-            <el-button
-            slot="trigger"
-            icon="el-icon-upload"
-            size="small"
-            type="primary">
-            上传文件
-            </el-button>
-        </el-upload>
-        <section class="data-set" v-if="originList.length">
-            <div>原数据：</div>
-            <ul>
-                <li v-for="(item, key) in originList" :key="key">
-                    {{item.name}} - {{item.price}}元
-                </li>
-            </ul>
-            <el-button @click="gtToShow">计算结果</el-button> 
-        </section>
+    <div class="whole-container">
+        <div class="upload-set" v-if="!show">
+            <div class="title-set">
+                <label>请上传你的商品文件</label>
+                <el-popover
+                    placement="bottom"
+                    trigger="click"
+                    content="上传你准备好的excel文件，商品不要超过15个。请见谅！后续我们会对此再做优化">
+                    <i class="el-icon-warning" slot="reference"></i>
+                </el-popover>
+            </div>
+            <el-upload ref="upload"
+            action="/"
+            :show-file-list="false"
+            :on-change="importExcel"
+            :auto-upload="false">
+                <el-button
+                slot="trigger"
+                icon="el-icon-upload"
+                size="small"
+                type="primary">
+                {{originList.length ? '重新上传' : '上传文件'}}
+                </el-button>
+            </el-upload>
+            <section v-if="originList.length">
+                <section class="data-set">
+                    <div>原数据：</div>
+                    <ul>
+                        <li v-for="(item, key) in originList" :key="key">
+                            {{`${item.name}  -  ${item.price}  元`}}
+                        </li>
+                    </ul>
+                </section>
+                <el-button class="caculate" icon="el-icon-check" @click="gtToShow">计算结果</el-button> 
+            </section>
+        </div>
+        <ShowCaculate v-if="show" :originList="originList"></ShowCaculate>
     </div>
 </template>
 <script>
 import XLSX from 'xlsx'
+import ShowCaculate from './ShowCaculate';
 export default {
     name: 'UploadData',
+    components: {
+        ShowCaculate
+    },
     data() {
         return {
             xlsxJson: null,
-            originList: []
+            originList: [],
+            show: false
         }
     },
     methods: {
         gtToShow() {
-            this.$router.push(
-                {
-                    path: '/show',
-                    query: {
-                        list: this.originList
-                    }
-                }
-            )
+            this.show = true;
         },
         importExcel(file) {
             // let file = file.files[0] // 使用传统的input方法需要加上这一步
@@ -87,17 +99,39 @@ export default {
     }
 }
 </script>
-<style lang="less" scoped>
-.xixi {
-    .data-set {
-        border:#409EFF 1px dashed;
-        margin: 20px 0;
-        padding: 10px 0;
-    }
-    ul {
-        text-align: left;
-        li {
-            line-height: 20px;
+<style lang="scss" scoped>
+.whole-container {
+    padding: 5px 0 0 0;
+    & .upload-set {
+        width: 100%;
+        /deep/ .el-button {
+            width: 200px;
+            height: 50px;
+            font-size: 18px;
+        }
+        & .title-set {
+            padding: 10px 0;
+            font-size: 16px;
+            & label {
+                margin-right: 10px;
+            }
+        }
+        & .data-set {
+            border:#409EFF 2px dashed;
+            border-radius: 5px;
+            margin: 20px 0;
+            padding: 10px 0;
+            font-weight: bold;
+        }
+        & ul {
+            text-align: left;
+            li {
+                line-height: 20px;
+            }
+        }
+        .caculate {
+            background: black;
+            color: white;
         }
     }
 }
