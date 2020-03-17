@@ -35,7 +35,7 @@
                 <el-button class="caculate" icon="el-icon-check" @click="gtToShow">计算结果</el-button> 
             </section>
         </div>
-        <ShowCaculate v-if="show" :originList="originList"></ShowCaculate>
+        <ShowCaculate v-if="show" :show.sync="show" :originList="originList"></ShowCaculate>
     </div>
 </template>
 <script>
@@ -71,7 +71,6 @@ export default {
                 this.originList = [...this.xlsxJson[0].sheet.map(val => {
                     return {name: val['产品名'], price: val['价格']}
                 })]
-                console.log('数据', this.originList);
                 }
             })
         },
@@ -102,6 +101,8 @@ export default {
 <style lang="scss" scoped>
 .whole-container {
     padding: 5px 0 0 0;
+    overflow-y: scroll;
+    height: calc(100vh - 30px);
     & .upload-set {
         width: 100%;
         /deep/ .el-button {

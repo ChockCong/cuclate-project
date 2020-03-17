@@ -3,8 +3,8 @@ import {
 	Button,
 	Message,
 	Upload,
-	Popover
-	// Input,
+	Popover,
+	Input
 	// Checkbox,
 	// CheckboxButton,
 	// Tooltip,
@@ -21,6 +21,7 @@ import {
 Vue.use(Button);
 Vue.use(Upload);
 Vue.use(Popover);
+Vue.use(Input);
 Vue.prototype.$message = Message;
 // Vue.use(Input);
 // Vue.use(Radio);

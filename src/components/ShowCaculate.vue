@@ -1,20 +1,30 @@
 <template>
-    <div class="show-set">
+    <div class="show-set" ref="container">
+        <div class="back">
+            <el-button @click="back" type="warning" icon="el-icon-arrow-left">返回</el-button>
+        </div>
         <div>原数据：</div>
         <ul>
-            <li v-for="(item, key) in originList" :key="key">
-                {{item.name}} - {{item.price}}元
+            <li v-for="(item, key) in newList" :key="key">
+                <span>{{`${item.name}  -  `}}</span>
+                <el-input size="mini" v-model="item.price" @change="formatInput($event, key)"></el-input>
+                <span> 元</span>
             </li>
         </ul>
+        <el-button class="caculate" icon="el-icon-check" @click="caculateAgain">重新计算</el-button> 
         <hr />
         <div>结果：</div>
         <template v-for="(item, key) in allTitle">
-            <div class="sub-title" :key="key" @click="showData(item)">
-                <span>{{item.idx}}元组合</span>
-                <i class="el-icon-circle-plus-outline"></i>
-            </div>
-            <div v-if="item.show" :key="key">
-                {{returnData(item.idx)}}
+            <div :key="key">
+                <div class="sub-title" @click="showData(item, key)">
+                    <span>{{item.idx}}元组合</span>
+                    <i class="el-icon-circle-plus-outline"></i>
+                </div>
+                <div v-if="item.show">
+                    <template v-for="(value, index) in returnData(item.idx)">
+                        <p :key="index">{{value.name}}</p>
+                    </template>
+                </div>
             </div>
         </template>
     </div>
@@ -22,10 +32,11 @@
 <script>
 export default {
     name: 'ShowCaculate',
-    props: ['originList'],
+    props: ['show','originList'],
     data() {
         return {
-            resultList:[]
+            resultList:[],
+            newList: []
         };
     },
     computed: {
@@ -50,19 +61,34 @@ export default {
         }
     },
     methods: {
+        back() {
+            this.$emit('update:show', false);
+        },
+        formatInput(e, key) {
+            this.newList.forEach((value, index) => {
+                if (index === key) {
+                    value.price = Number(e);
+                }
+            })
+        },
         showData (item) {
             item.show = !item.show;
+            this.$nextTick(() => {
+                this.$forceUpdate();
+            });
         },
         returnData(price) {
-            let str = '[';
-            this.resultList.forEach((val) => {
-                if (val.price === Number(price)) {
-                    str = str + val.name + ',';
-                }
+            let arr = [];
+            arr = this.resultList.filter(val => {
+                return val.price === Number(price);
             });
-            
-            str += ']';
-            return str;
+            return arr;
+        },
+        caculateAgain() {
+            this.resultList = [];
+            this.$nextTick(() => {
+                this.getGroup(this.newList);
+            })
         },
         getGroup(data, index = 0, group = []) {
 			let need_apply = new Array();
@@ -71,6 +97,10 @@ export default {
 				need_apply.push({ name: `${group[i].name}+${data[index].name}`, price: group[i].price + data[index].price });
             }
             group.push.apply(group, need_apply);
+            if (need_apply[need_apply.length - 1].price >= 300) {
+                this.resultList = group;
+                return group;
+            }
 			if (index + 1 >= data.length) {
                 this.resultList = group;
                 return group;
@@ -79,31 +109,48 @@ export default {
 		},
     },
     beforeMount () {
+        this.newList = [...this.originList];
 		this.getGroup(this.originList);
     }
 }
 </script>
 <style lang="less" scoped>
 .show-set {
+    & .back {
+        padding: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left;
+    }
     & .sub-title{
-        width: 100%;
+        // width: 100%;
         height: 35px;
         background-color: #409EFF;
         color: white;
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
+        padding: 0 5px;
         & span {
             font-weight: bold;
             margin-right: 10px;
         }
     }
     ul {
+        font-weight: bold;
         text-align: left;
         li {
             line-height: 20px;
+            padding: 5px 0;
+            /deep/ .el-input {
+                width: 100px;
+            }
         }
+    }
+    .caculate {
+        background: black;
+        color: white;
     }
 }
 </style>
