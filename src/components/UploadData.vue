@@ -28,7 +28,8 @@
                     <div>原数据：</div>
                     <ul>
                         <li v-for="(item, key) in originList" :key="key">
-                            {{`${item.name}  -  ${item.price}  元`}}
+                            <span>{{`${item.name}  -  ${item.price}  元`}}</span>
+                            <span class="cost-content">成本:{{item.cost}}元</span>
                         </li>
                     </ul>
                 </section>
@@ -69,7 +70,7 @@ export default {
                 if (tabJson && tabJson.length > 0) {
                 this.xlsxJson = tabJson;
                 this.originList = [...this.xlsxJson[0].sheet.map(val => {
-                    return {name: val['产品名'], price: val['价格']}
+                    return {name: val['产品名'], price: val['价格'], cost: val['成本']}
                 })]
                 }
             })
@@ -134,6 +135,14 @@ export default {
             background: black;
             color: white;
         }
+    }
+    & .cost-content {
+            margin-left: 10px;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            background-color: darkred;
+            padding: 0 3px;
     }
 }
 </style>

@@ -9,6 +9,7 @@
                 <span>{{`${item.name}  -  `}}</span>
                 <el-input size="mini" v-model="item.price" @change="formatInput($event, key)"></el-input>
                 <span> 元</span>
+                <span class="cost-content">成本:{{item.cost}}元</span>
             </li>
         </ul>
         <el-button class="caculate" icon="el-icon-check" @click="caculateAgain">重新计算</el-button> 
@@ -22,7 +23,10 @@
                 </div>
                 <div v-if="item.show">
                     <template v-for="(value, index) in returnData(item.idx)">
-                        <p :key="index">{{value.name}}</p>
+                        <p :key="index">
+                            <span>{{value.name}}</span>
+                            <span class="cost-content">成本:{{value.cost}}元</span>
+                        </p>
                     </template>
                 </div>
             </div>
@@ -36,11 +40,18 @@ export default {
     data() {
         return {
             resultList:[],
-            newList: []
+            newList: [],
+            allTitle: []
         };
     },
     computed: {
-        allTitle() {
+        
+    },
+    methods: {
+        back() {
+            this.$emit('update:show', false);
+        },
+        allTitleSum() {
             const countNames = this.resultList.reduce((allPrice, value) => {
                 if (value.price in allPrice) {
                     allPrice[value.price] ++;
@@ -57,12 +68,8 @@ export default {
                 newSet.show = false;
                 return newSet;
             })
+            this.allTitle = last;
             return last;
-        }
-    },
-    methods: {
-        back() {
-            this.$emit('update:show', false);
         },
         formatInput(e, key) {
             this.newList.forEach((value, index) => {
@@ -94,15 +101,17 @@ export default {
 			let need_apply = new Array();
 			need_apply.push(data[index]);
 			for (let i = 0; i < group.length; i++) {
-				need_apply.push({ name: `${group[i].name}+${data[index].name}`, price: group[i].price + data[index].price });
+				need_apply.push({ name: `${group[i].name}+${data[index].name}`, price: group[i].price + data[index].price, cost: group[i].cost + data[index].cost });
             }
             group.push.apply(group, need_apply);
             if (need_apply[need_apply.length - 1].price >= 300) {
                 this.resultList = group;
+                this.allTitleSum();
                 return group;
             }
 			if (index + 1 >= data.length) {
                 this.resultList = group;
+                this.allTitleSum();
                 return group;
             }
 			else return this.getGroup(data, index + 1, group);
@@ -136,6 +145,14 @@ export default {
             font-weight: bold;
             margin-right: 10px;
         }
+    }
+    & .cost-content {
+            margin-left: 10px;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            background-color: darkred;
+            padding: 0 3px;
     }
     ul {
         font-weight: bold;
